@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Profile",
+            name="Diary",
             fields=[
                 (
                     "id",
@@ -21,14 +21,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("user_id", models.CharField(max_length=50)),
-                ("nickname", models.CharField(max_length=15)),
-                ("join_date", models.DateField()),
-                ("point", models.IntegerField()),
-                ("temperature", models.FloatField()),
-                ("humidity", models.FloatField()),
-                ("illuminance", models.FloatField()),
-                ("soil_moisture", models.FloatField()),
+                ("date", models.DateField()),
+                ("mood", models.IntegerField()),
+                ("content", models.TextField()),
+                ("achievement_rate", models.FloatField()),
             ],
         ),
     ]
