@@ -10,6 +10,11 @@ from django.utils import timezone
 from datetime import timedelta
 from django.conf import settings
 from rest_framework.response import Response
+from serial import Serial
+import random
+
+ARDUINO_PORT = 'COM3'
+ARDUINO_BAUDRATE = 9600
 
 class ProfileViewSet(
     mixins.ListModelMixin,
@@ -42,3 +47,23 @@ class UserViewSet(
                 {"user_id":user.id, "expired_at":expired_at},settings.SECRET_KEY)
             return Response(access_token)
         return Response("유효하지 않은 정보입니다", status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class TemparatureHumidityViewSet(viewsets.ViewSet):
+    def list(self, request):
+        with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
+            arduino.readline()
+        
+            data = arduino.readline().decode().strip()
+            print(data)
+            _, humdity, temperature = data.split(',')
+
+        light = random.randint(0, 1023)
+        humdity = int(humdity)
+        temperature = int(temperature)
+
+        return Response({
+            'temperature' : temperature,
+            'humidity' : humdity,
+            'light' : light,
+        })
