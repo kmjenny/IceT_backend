@@ -35,3 +35,8 @@ class DiarySerializer(serializers.ModelSerializer):
         model = Diary
         read_only_fields = ('user','date')
         fields = ['user', 'date', 'mood', 'content']
+
+class MissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mission
+        fields = '__all__'

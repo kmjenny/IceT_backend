@@ -64,3 +64,13 @@ class Diary(models.Model):
     mood = models.IntegerField()
     content = models.TextField()
     achievement_rate = models.FloatField(default=0)
+
+class Mission(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    mission_id = models.IntegerField()
+    is_done = models.IntegerField(default=0)
+    date = models.DateField(auto_now_add=True)
+
+class AllMission(models.Model):
+    content = models.CharField(max_length=100)
+    condition = models.IntegerField()

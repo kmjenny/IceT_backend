@@ -82,6 +82,18 @@ class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
     
+# class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
+#     serializer_class = MissionSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Mission.objects.all()
+    
+#     def perform_create(self, serializer):
+#         all_missions = AllMission.objects.exclude(id__in=Mission.objects.values('all_mission_id'))
+
+
+    
 class TemparatureHumidityViewSet(viewsets.ViewSet):
     def list(self, request):
         with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
