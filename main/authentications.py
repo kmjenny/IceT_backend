@@ -1,7 +1,7 @@
 from datetime import datetime
-
 import jwt
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from .models import User
 from rest_framework import authentication, exceptions
 from django.conf import settings
 
@@ -17,9 +17,9 @@ class JWTAuthentication(authentication.BaseAuthentication):
             token = token.decode("ascii")
         try:
             data = jwt.decode(token, settings.SECRET_KEY, algorithms = "HS256")
-            user_id = data['user_id']
+            just_id = data['just_id']
             expired_at = data['expired_at']
-            user = User.objects.get(user_id=user_id)
+            user = User.objects.get(id=just_id)
         except (jwt.DecodeError, jwt.InvalidAlgorithmError, AttributeError):
             raise exceptions.AuthenticationFailed("Invalid Token")
         except User.DoesNotExist:

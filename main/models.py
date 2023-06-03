@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 class UserManager(BaseUserManager):
     def create_user(self, user_id, password=None):
@@ -40,9 +42,18 @@ class User(AbstractBaseUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nickname = models.CharField(max_length=15)
-    point = models.IntegerField()
-    temperature = models.FloatField()
-    humidity = models.FloatField()
-    illuminance = models.FloatField()
-    soil_moisture = models.FloatField()
+    nickname = models.CharField(max_length=15, blank=True)
+    point = models.IntegerField(blank=True, default=0)
+    temperature = models.FloatField(blank=True, default=0)
+    humidity = models.FloatField(blank=True, default=0)
+    illuminance = models.FloatField(blank=True, default=0)
+    soil_moisture = models.FloatField(blank=True, default=0)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

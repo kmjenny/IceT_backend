@@ -1,9 +1,8 @@
-from django.shortcuts import render
-from rest_framework import mixins, status
+from django.shortcuts import render, get_object_or_404
+from rest_framework import mixins, status, viewsets
 from .models import *
 from .serializers import *
-from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from django.contrib.auth import authenticate
 import jwt
 from django.utils import timezone
@@ -12,17 +11,36 @@ from django.conf import settings
 from rest_framework.response import Response
 from serial import Serial
 import random
+from rest_framework.permissions import IsAuthenticated
 
 ARDUINO_PORT = 'COM3'
 ARDUINO_BAUDRATE = 9600
 
 class ProfileViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
+    viewsets.ModelViewSet,
+	viewsets.GenericViewSet
 ):
-    serializer_class = ProfileSerializer
+    serializer_class = MainSerializer
     queryset = Profile.objects.all()
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+    @action(methods=["PATCH"], detail=True)
+    @permission_classes([IsAuthenticated])
+    def profile_update(self, request):
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data)
+    
+    # @action(methods=["GET"], detail=True)
+    # @permission_classes([IsAuthenticated])
+    # def show_main(self, request):
+    #     user = request.user
+    #     profile = Profile.objects.get(user=user)
+    #     serializer = MainSerializer(profile, data=request.data)
+    #     return Response(serializer.data)
 
 class UserViewSet(
     mixins.CreateModelMixin,
@@ -44,10 +62,14 @@ class UserViewSet(
                 "%Y-%m-%d %H:%M:%S"
             )
             access_token = jwt.encode(
-                {"user_id":user.id, "expired_at":expired_at},settings.SECRET_KEY)
+                {"just_id":user.id, "expired_at":expired_at},settings.SECRET_KEY)
             return Response(access_token)
         return Response("유효하지 않은 정보입니다", status=status.HTTP_400_BAD_REQUEST)
     
+    @action(methods=["GET"], detail=False)
+    @permission_classes([IsAuthenticated])
+    def test(self, request):
+        return Response(request.user.user_id)
     
 class TemparatureHumidityViewSet(viewsets.ViewSet):
     def list(self, request):

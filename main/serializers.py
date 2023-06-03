@@ -15,4 +15,17 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['nickname','point','temperature','humidity','illuminance','soil_moisture']
+        read_only_fields = ('user','point','temperature','humidity','illuminance','soil_moisture', 'user_id')
+        fields = '__all__'
+
+class MainUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['join_date']
+
+class MainSerializer(serializers.ModelSerializer):
+    user = MainUserSerializer()
+
+    class Meta:
+        model = Profile
+        fields = ['user','nickname','point', 'temperature', 'humidity', 'illuminance','soil_moisture']
