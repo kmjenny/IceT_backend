@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, status, viewsets, permissions
 from .models import *
 from .serializers import *
 from rest_framework.decorators import action, permission_classes
@@ -70,6 +70,17 @@ class UserViewSet(
     @permission_classes([IsAuthenticated])
     def test(self, request):
         return Response(request.user.user_id)
+
+class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
+    serializer_class = DiarySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Diary.objects.filter(user=user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
     
 class TemparatureHumidityViewSet(viewsets.ViewSet):
     def list(self, request):

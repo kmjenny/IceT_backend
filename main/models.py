@@ -60,7 +60,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 class Diary(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     mood = models.IntegerField()
     content = models.TextField()
-    achievement_rate = models.FloatField()
+    achievement_rate = models.FloatField(default=0)

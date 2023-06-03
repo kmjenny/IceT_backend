@@ -29,3 +29,9 @@ class MainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['user','nickname','point', 'temperature', 'humidity', 'illuminance','soil_moisture']
+    
+class DiarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Diary
+        read_only_fields = ('user','date')
+        fields = ['user', 'date', 'mood', 'content']
