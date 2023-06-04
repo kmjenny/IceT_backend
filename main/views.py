@@ -78,12 +78,15 @@ class UserViewSet(
         password = request.data.get("password")
         user = authenticate(user_id = user_id, password = password)
         if user is not None and user.is_active:
-            expired_at = (timezone.now() + timedelta(days=14)).strftime(
+            expired_at = (timezone.now() + timedelta(days=140)).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
             access_token = jwt.encode(
                 {"just_id":user.id, "expired_at":expired_at},settings.SECRET_KEY)
-            return Response(access_token)
+            response_data = {
+                'access_token' : access_token
+            }
+            return Response(response_data)
         return Response("유효하지 않은 정보입니다", status=status.HTTP_400_BAD_REQUEST)
     
     @action(methods=["GET"], detail=False)
@@ -111,24 +114,3 @@ class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
     
 #     def perform_create(self, serializer):
 #         all_missions = AllMission.objects.exclude(id__in=Mission.objects.values('all_mission_id'))
-
-
-    
-# class TemparatureHumidityViewSet(viewsets.ViewSet):
-#     def list(self, request):
-#         with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
-#             arduino.readline()
-        
-#             data = arduino.readline().decode().strip()
-#             print(data)
-#             _, humdity, temperature = data.split(',')
-
-#         light = random.randint(0, 1023)
-#         humdity = int(humdity)
-#         temperature = int(temperature)
-
-#         return Response({
-#             'temperature' : temperature,
-#             'humidity' : humdity,
-#             'light' : light,
-#         })
