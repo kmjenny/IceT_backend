@@ -18,7 +18,8 @@ ARDUINO_BAUDRATE = 9600
 
 class ProfileViewSet(
     viewsets.ModelViewSet,
-	viewsets.GenericViewSet
+	viewsets.GenericViewSet,
+    viewsets.ViewSet
 ):
     serializer_class = MainSerializer
     queryset = Profile.objects.all()
@@ -34,13 +35,32 @@ class ProfileViewSet(
             serializer.save()
         return Response(serializer.data)
     
-    # @action(methods=["GET"], detail=True)
-    # @permission_classes([IsAuthenticated])
-    # def show_main(self, request):
-    #     user = request.user
-    #     profile = Profile.objects.get(user=user)
-    #     serializer = MainSerializer(profile, data=request.data)
-    #     return Response(serializer.data)
+    @action(methods=["GET"], detail=False)
+    @permission_classes([IsAuthenticated])
+    def show_main(self, request, pk = None):
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        serializer = MainSerializer(profile, data=request.data)
+
+        with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
+            arduino.readline()
+        
+            data = arduino.readline().decode().strip()
+            _, humidity, temperature = data.split(',')
+        
+        illuminance = random.randint(0, 1023)
+        soil_moisture = random.randint(0, 100)
+        humidity = int(humidity)
+        temperature = int(temperature)
+
+        if serializer.is_valid():
+            serializer.validated_data['illuminance'] = illuminance
+            serializer.validated_data['soil_moisture'] = soil_moisture
+            serializer.validated_data['humidity'] = humidity
+            serializer.validated_data['temperature'] = temperature
+            serializer.save()
+
+        return Response(serializer.data)
 
 class UserViewSet(
     mixins.CreateModelMixin,
@@ -94,21 +114,21 @@ class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
 
 
     
-class TemparatureHumidityViewSet(viewsets.ViewSet):
-    def list(self, request):
-        with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
-            arduino.readline()
+# class TemparatureHumidityViewSet(viewsets.ViewSet):
+#     def list(self, request):
+#         with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
+#             arduino.readline()
         
-            data = arduino.readline().decode().strip()
-            print(data)
-            _, humdity, temperature = data.split(',')
+#             data = arduino.readline().decode().strip()
+#             print(data)
+#             _, humdity, temperature = data.split(',')
 
-        light = random.randint(0, 1023)
-        humdity = int(humdity)
-        temperature = int(temperature)
+#         light = random.randint(0, 1023)
+#         humdity = int(humdity)
+#         temperature = int(temperature)
 
-        return Response({
-            'temperature' : temperature,
-            'humidity' : humdity,
-            'light' : light,
-        })
+#         return Response({
+#             'temperature' : temperature,
+#             'humidity' : humdity,
+#             'light' : light,
+#         })
