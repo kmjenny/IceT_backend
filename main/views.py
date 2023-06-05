@@ -135,32 +135,96 @@ class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
             if soil_moisture<=40:
                 if mission_id == 1:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
             
             if illuminance <= 300:
                 if mission_id == 2:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
             elif illuminance >= 1000:
                 if mission_id == 3:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
             
             if temperature <= 10:
                 if mission_id == 4:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
             if humidity <= 40:
                 if mission_id == 5:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
 
             if day == 1:
                 if mission_id == 6:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
                 
                 if mission_id == 7:
                     mission.is_today = 1
+                    day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
             
-            if month == 6 or month == 8 or month == 12:
+            if month == 4 or month == 8 or month == 12:
                 if day == 5:
                     if mission_id == 8:
                         mission.is_today = 1
+                        day_mission = DayMission.objects.create(
+                        profile = profile,
+                        mission_id = mission_id,
+                        content = mission.content,
+                        is_done = mission.is_done,
+                        date = timezone.now().date()
+                    )
+                    day_mission.save()
 
             mission.save()
         serializer = MissionSerializer(missions, many=True)
@@ -172,6 +236,7 @@ class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         user = request.user
         profile = Profile.objects.get(user=user)
         missions = Mission.objects.filter(profile = profile)
+        day_missions = DayMission.objects.filter(profile=profile)
 
         temperature = profile.temperature
         humidity = profile.humidity
@@ -184,26 +249,47 @@ class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         for mission in missions:
             mission_id = mission.mission_id
             
-            if soil_moisture>40:
-                if mission_id == 1:
-                    mission.is_done = 1
-            
-            if illuminance > 300:
-                if mission_id == 2:
-                    mission.is_done = 1
-            
-            if illuminance < 1000:
-                if mission_id == 3:
-                    mission.is_done = 1
-            
-            if temperature > 10:
-                if mission_id == 4:
-                    mission.is_done = 1
-            if humidity > 40:
-                if mission_id == 5:
-                    mission.is_done = 1
+            if mission.is_today == 1:
+                if soil_moisture>40:
+                    if mission_id == 1:
+                        mission.is_done = 1
+                
+                if illuminance > 300:
+                    if mission_id == 2:
+                        mission.is_done = 1
+                
+                if illuminance < 1000:
+                    if mission_id == 3:
+                        mission.is_done = 1
+                
+                if temperature > 10:
+                    if mission_id == 4:
+                        mission.is_done = 1
+                if humidity > 40:
+                    if mission_id == 5:
+                        mission.is_done = 1
 
             mission.save()
+
+        for day_mission in day_missions:
+            mission_id = day_mission.mission_id
+            if soil_moisture>40:
+                if mission_id == 1:
+                    day_mission.is_done = 1      
+            if illuminance > 300:
+                if mission_id == 2:
+                    day_mission.is_done = 1     
+            if illuminance < 1000:
+                if mission_id == 3:
+                    day_mission.is_done = 1
+            if temperature > 10:
+                if mission_id == 4:
+                    day_mission.is_done = 1
+            if humidity > 40:
+                if mission_id == 5:
+                    day_mission.is_done = 1
+            day_mission.save()
+                        
         serializer = MissionSerializer(missions, many=True)
         return Response(serializer.data)
     
@@ -215,10 +301,16 @@ class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
         mission_id = int(request.data.get("mission_id"))
 
         missions = Mission.objects.filter(profile=profile)
+        day_missions = DayMission.objects.filter(profile=profile)
 
         for mission in missions:
             if mission.mission_id == mission_id:
                 mission.is_done = 1
+                mission.save()
+        
+        for day_mission in day_missions:
+            if day_mission.mission_id == mission_id:
+                day_mission.is_done = 1
                 mission.save()
 
         serializer = MissionSerializer(missions, many=True)

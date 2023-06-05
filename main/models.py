@@ -151,6 +151,7 @@ def create_mission(sender, instance, created, **kwargs):
 
 class DayMission(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    mission_id = models.IntegerField()
     content = models.CharField(max_length=100)
     is_done = models.IntegerField()
     date = models.DateField(auto_now_add=True)
