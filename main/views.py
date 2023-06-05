@@ -130,6 +130,7 @@ class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
 
         for mission in missions:
             mission_id = mission.mission_id
+            mission.is_done = 0
             
             if soil_moisture<=40:
                 if mission_id == 1:
