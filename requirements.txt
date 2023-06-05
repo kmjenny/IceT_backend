@@ -8,6 +8,7 @@ cryptography==41.0.1
 defusedxml==0.7.1
 Django==4.2.1
 django-allauth==0.54.0
+django-cron==0.6.0
 django-rest-auth==0.9.5
 djangorestframework==3.14.0
 djangorestframework-jwt==1.11.0

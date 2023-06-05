@@ -68,9 +68,83 @@ class Diary(models.Model):
 class Mission(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     mission_id = models.IntegerField()
-    is_done = models.IntegerField(default=0)
-    date = models.DateField(auto_now_add=True)
-
-class AllMission(models.Model):
     content = models.CharField(max_length=100)
     condition = models.IntegerField()
+    is_done = models.IntegerField(default=0)
+    is_today= models.IntegerField(default=0)
+
+@receiver(post_save, sender=Profile)
+def create_mission(sender, instance, created, **kwargs):
+    if created:
+        mission1 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 1,
+            content = "흙에 물 주기",
+            condition = 1,
+            is_done = 0,
+            is_today = 0
+        )
+        mission2 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 2,
+            content = "햇볕 드는 장소로 옮기기",
+            condition = 2,
+            is_done = 0,
+            is_today = 0
+        )
+        mission3 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 3,
+            content = "그늘진 장소로 옮기기",
+            condition = 3,
+            is_done = 0,
+            is_today = 0
+        )
+        mission4 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 4,
+            content = "실내로 식물 옮기기",
+            condition = 4,
+            is_done = 0,
+            is_today = 0
+        )
+        mission5 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 5,
+            content = "식물 주변에 분무하기",
+            condition = 5,
+            is_done = 0,
+            is_today = 0
+        )
+        mission6 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 6,
+            content = "떨어진 잎 정리하기",
+            condition = 6,
+            is_done = 0,
+            is_today = 0
+        )
+        mission7 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 7,
+            content = "잎에 쌓인 먼지 닦기",
+            condition = 6,
+            is_done = 0,
+            is_today = 0
+        )
+        mission8 = Mission.objects.create(
+            profile = instance.user.profile,
+            mission_id = 8,
+            content = "가지치기",
+            condition = 7,
+            is_done = 0,
+            is_today = 0
+        )
+        mission1.save()
+        mission2.save()
+        mission3.save()
+        mission4.save()
+        mission5.save()
+        mission6.save()
+        mission7.save()
+        mission8.save()

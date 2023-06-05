@@ -10,9 +10,13 @@ user_router = routers.SimpleRouter(trailing_slash=False)
 user_router.register("users", UserViewSet, basename="users")
 diary_router = routers.SimpleRouter(trailing_slash=False)
 diary_router.register("diaries", DiaryViewSet, basename="diaries")
+mission_router = routers.SimpleRouter(trailing_slash=False)
+mission_router.register("missions", MissionViewSet, basename="missions")
 
 urlpatterns = [
     path("", include(profile_router.urls)),
     path("", include(user_router.urls)),
     path("", include(diary_router.urls)),
+    path("", include(mission_router.urls)),
+    path("profiles/<int:id>/", include(mission_router.urls)),
 ]

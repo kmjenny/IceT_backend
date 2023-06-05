@@ -35,31 +35,29 @@ class ProfileViewSet(
             serializer.save()
         return Response(serializer.data)
     
-    @action(methods=["GET"], detail=False)
+    @action(methods=["GET"], detail=True)
     @permission_classes([IsAuthenticated])
     def show_main(self, request, pk = None):
         user = request.user
         profile = Profile.objects.get(user=user)
-        serializer = MainSerializer(profile, data=request.data)
 
-        with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
-            arduino.readline()
+        #with Serial(ARDUINO_PORT, ARDUINO_BAUDRATE) as arduino:
+        #     arduino.readline()
         
-            data = arduino.readline().decode().strip()
-            _, humidity, temperature = data.split(',')
+        #     data = arduino.readline().decode().strip()
+        #     _, humidity, temperature = data.split(',')
         
         illuminance = random.randint(0, 1023)
         soil_moisture = random.randint(0, 100)
-        humidity = int(humidity)
-        temperature = int(temperature)
+        # humidity = int(humidity)
+        # temperature = int(temperature)
+        profile.illuminance = illuminance
+        profile.soil_moisture = soil_moisture
+        # profile.humidity = humidity
+        # profile.temperature = temperature
 
-        if serializer.is_valid():
-            serializer.validated_data['illuminance'] = illuminance
-            serializer.validated_data['soil_moisture'] = soil_moisture
-            serializer.validated_data['humidity'] = humidity
-            serializer.validated_data['temperature'] = temperature
-            serializer.save()
-
+        profile.save()
+        serializer = MainSerializer(profile)
         return Response(serializer.data)
 
 class UserViewSet(
@@ -105,12 +103,105 @@ class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
     
-# class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
-#     serializer_class = MissionSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
+    serializer_class = MissionSerializer
 
-#     def get_queryset(self):
-#         return Mission.objects.all()
+    @permission_classes([IsAuthenticated])
+    def get_queryset(self, *args, **kwargs):
+        queryset = Mission.objects.filter(
+            profile = self.kwargs.get("id")
+        )
+        return queryset
     
-#     def perform_create(self, serializer):
-#         all_missions = AllMission.objects.exclude(id__in=Mission.objects.values('all_mission_id'))
+    @permission_classes([IsAuthenticated])
+    @action(methods=["GET"], detail=False)
+    def mission_set(self, request, id=None):
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        missions = Mission.objects.filter(profile = profile)
+
+        temperature = profile.temperature
+        humidity = profile.humidity
+        illuminance = profile.illuminance
+        soil_moisture = profile.soil_moisture
+
+        day = timezone.now().day
+        month = timezone.now().month
+
+        for mission in missions:
+            mission_id = mission.mission_id
+            
+            if soil_moisture<=40:
+                if mission_id == 1:
+                    mission.is_today = 1
+            
+            if illuminance <= 300:
+                if mission_id == 2:
+                    mission.is_today = 1
+            elif illuminance >= 1000:
+                if mission_id == 3:
+                    mission.is_today = 1
+            
+            if temperature <= 10:
+                if mission_id == 4:
+                    mission.is_today = 1
+            if humidity <= 40:
+                if mission_id == 5:
+                    mission.is_today = 1
+
+            if day == 1:
+                if mission_id == 6:
+                    mission.is_today = 1
+                
+                if mission_id == 7:
+                    mission.is_today = 1
+            
+            if month == 6 or month == 8 or month == 12:
+                if day == 5:
+                    if mission_id == 8:
+                        mission.is_today = 1
+
+            mission.save()
+        serializer = MissionSerializer(missions, many=True)
+        return Response(serializer.data)
+    
+    @permission_classes([IsAuthenticated])
+    @action(methods=["GET"], detail=False)
+    def mission_check(self, request, id=None):
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        missions = Mission.objects.filter(profile = profile)
+
+        temperature = profile.temperature
+        humidity = profile.humidity
+        illuminance = profile.illuminance
+        soil_moisture = profile.soil_moisture
+
+        day = timezone.now().day
+        month = timezone.now().month
+
+        for mission in missions:
+            mission_id = mission.mission_id
+            
+            if soil_moisture>40:
+                if mission_id == 1:
+                    mission.is_done = 1
+            
+            if illuminance > 300:
+                if mission_id == 2:
+                    mission.is_done = 1
+            
+            if illuminance < 1000:
+                if mission_id == 3:
+                    mission.is_done = 1
+            
+            if temperature > 10:
+                if mission_id == 4:
+                    mission.is_done = 1
+            if humidity > 40:
+                if mission_id == 5:
+                    mission.is_done = 1
+
+            mission.save()
+        serializer = MissionSerializer(missions, many=True)
+        return Response(serializer.data)

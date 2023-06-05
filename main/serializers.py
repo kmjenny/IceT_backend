@@ -39,4 +39,5 @@ class DiarySerializer(serializers.ModelSerializer):
 class MissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mission
-        fields = '__all__'
+        read_only_fields = ('profile', 'mission_id', 'content', 'condition', 'is_done', 'is_today')
+        fields = ['profile', 'mission_id', 'content', 'condition', 'is_done', 'is_today']
