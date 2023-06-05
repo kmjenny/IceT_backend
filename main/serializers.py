@@ -41,3 +41,8 @@ class MissionSerializer(serializers.ModelSerializer):
         model = Mission
         read_only_fields = ('profile', 'mission_id', 'content', 'condition', 'is_done', 'is_today')
         fields = ['profile', 'mission_id', 'content', 'condition', 'is_done', 'is_today']
+
+class MissionClickSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mission
+        fields = ['mission_id']

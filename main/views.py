@@ -205,3 +205,20 @@ class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
             mission.save()
         serializer = MissionSerializer(missions, many=True)
         return Response(serializer.data)
+    
+    @permission_classes([IsAuthenticated])
+    @action(methods=["POST"], detail=False)
+    def mission_click(self, request, id=None):
+        user = request.user
+        profile = Profile.objects.get(user=user)
+        mission_id = int(request.data.get("mission_id"))
+
+        missions = Mission.objects.filter(profile=profile)
+
+        for mission in missions:
+            if mission.mission_id == mission_id:
+                mission.is_done = 1
+                mission.save()
+
+        serializer = MissionSerializer(missions, many=True)
+        return Response(serializer.data)
