@@ -116,9 +116,22 @@ class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
 
         achievement_rate = (completed_count / day_mission_count) * 100
         diary.achievement_rate = round(achievement_rate, 1)
+        diary.save()
 
         serializer = DiaryClickSerializer({'diary': diary, 'day_missions': day_missions})
         return Response(serializer.data)
+    
+    @action(methods=["GET"], detail=False)
+    def get_month_diaries(self, request, id=None):
+        user = request.user
+        year = request.data.get("year")
+        month = request.data.get("month")
+
+        month_diaries = Diary.objects.filter(user = user, date__year = year, date__month = month)
+
+        serializer = MonthDiariesSerializer(month_diaries, many = True)
+        return Response(serializer.data)
+
     
 class MissionViewSet(viewsets.ModelViewSet, viewsets.GenericViewSet):
     serializer_class = MissionSerializer

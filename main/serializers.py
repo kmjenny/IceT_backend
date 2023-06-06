@@ -58,3 +58,8 @@ class DiaryClickSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['diary', 'day_missions']
+
+class MonthDiariesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Diary
+        fields = ['date', 'achievement_rate']
