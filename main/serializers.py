@@ -34,7 +34,7 @@ class DiarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Diary
         read_only_fields = ('user','date')
-        fields = ['user', 'date', 'mood', 'content']
+        fields = ['user', 'date', 'mood', 'content', 'achievement_rate']
 
 class MissionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,3 +46,20 @@ class MissionClickSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mission
         fields = ['mission_id']
+
+class DayMissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DayMission
+        fields = ['mission_id', 'content', 'is_done']
+
+class DiaryClickSerializer(serializers.Serializer):
+    diary = DiarySerializer()
+    day_missions = DayMissionSerializer(many=True)
+
+    class Meta:
+        fields = ['diary', 'day_missions']
+
+class MonthDiariesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Diary
+        fields = ['date', 'achievement_rate']
