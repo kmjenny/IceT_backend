@@ -56,6 +56,13 @@ class DiaryClickSerializer(serializers.Serializer):
     diary = DiarySerializer()
     day_missions = DayMissionSerializer(many=True)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        
+        if data['diary'] is None:
+            data['diary'] = {'achievement_rate': 0}
+        return data
+
     class Meta:
         fields = ['diary', 'day_missions']
 
