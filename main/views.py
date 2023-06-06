@@ -113,10 +113,11 @@ class DiaryViewSet(viewsets.ModelViewSet,viewsets.GenericViewSet):
         day_missions = DayMission.objects.filter(profile = profile, date = date)
         day_mission_count = day_missions.count()
         completed_count = day_missions.filter(is_done=True).count()
-
-        achievement_rate = (completed_count / day_mission_count) * 100
-        diary.achievement_rate = round(achievement_rate, 1)
-        diary.save()
+        
+        if day_mission_count != 0:
+            achievement_rate = (completed_count / day_mission_count) * 100
+            diary.achievement_rate = round(achievement_rate, 1)
+            diary.save()
 
         serializer = DiaryClickSerializer({'diary': diary, 'day_missions': day_missions})
         return Response(serializer.data)
